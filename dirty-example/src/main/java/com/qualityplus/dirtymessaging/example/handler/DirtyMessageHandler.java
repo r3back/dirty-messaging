@@ -7,7 +7,7 @@ public final class DirtyMessageHandler implements MessageHandler<DirtyMessage> {
     @Override
     public void accept(DirtyMessage message) {
         /**
-         * DO WHATEVER WITH MESSAGE
+         * Do Whatever with received message
          */
     }
 
