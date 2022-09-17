@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.github.johnrengelman.shadow'
 }
 
 group 'com.qualityplus'
@@ -13,6 +14,10 @@ repositories {
 dependencies {
     api 'org.slf4j:slf4j-api:1.7.30'
     api 'org.msgpack:msgpack-core:0.8.22'
+}
+
+shadowJar {
+    archiveFileName = 'dirty-api.jar'
 }
 
 test {
