@@ -4,7 +4,9 @@ It works by serializing messages using MessagePack and sending them to specific 
 Deserialization happens automatically when a message is received on channel. After deserialization, all handlers for message's class are triggered. If there's no such class in classloader, message is getting skipped.
 In order to get this library working properly, you need to have exactly the same path to class in both classloaders of JVMs you want to communicate between.
 <br><br>
-This library utilizes LettuceCore to manage Redis Messages and AMQP for RabbitMQ Messages.
+This library utilizes:
+* LettuceCore to manage Redis Messages.
+* AMQP for RabbitMQ Messages.
 
 # Messages
 Example message of custom class to deserialize using @DirtyField annotation:
