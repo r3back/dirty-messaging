@@ -9,6 +9,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Builder
 public final class MessagingCredentials implements DirtyCredentials {
+    private String id;
     private String uri;
     private String prefix;
     private MessagingType type;

@@ -1,11 +1,14 @@
 package com.qualityplus.dirtymessaging.example;
 
 import com.qualityplus.dirtymessaging.DirtyService;
+import com.qualityplus.dirtymessaging.api.annotations.Sub;
 import com.qualityplus.dirtymessaging.api.credentials.DirtyCredentials.MessagingType;
 import com.qualityplus.dirtymessaging.base.service.factory.RedisMessagingServiceFactory;
 import com.qualityplus.dirtymessaging.core.credentials.MessagingCredentials;
 import com.qualityplus.dirtymessaging.example.handler.DirtyMessageHandler;
 import com.qualityplus.dirtymessaging.example.message.DirtyMessage;
+
+import java.util.function.Consumer;
 
 public final class DirtyExample {
     private static final String REDIS_URI = "redis://user:password@host:port";
@@ -30,5 +33,15 @@ public final class DirtyExample {
                 .build();
 
         service.publish(message);
+    }
+
+
+    @Sub(channel = "channel", credentials = "")
+    public Consumer<DirtyMessage> sub(){
+        return dirtyMessage -> {
+            System.out.println("");
+
+            new DirtyMessage(1, "", new byte[]{});
+        };
     }
 }
