@@ -18,6 +18,14 @@ dependencies {
 
 shadowJar {
     archiveFileName = 'dirty-api.jar'
+
+    doLast {
+        rootProject.copyJars(archiveFile)
+    }
+}
+
+artifacts {
+    archives shadowJar
 }
 
 test {

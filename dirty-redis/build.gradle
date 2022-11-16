@@ -21,6 +21,14 @@ dependencies {
 
 shadowJar {
     archiveFileName = 'dirty-redis.jar'
+
+    doLast {
+        rootProject.copyJars(archiveFile)
+    }
+}
+
+artifacts {
+    archives shadowJar
 }
 
 test {

@@ -24,6 +24,18 @@ dependencies {
 
 shadowJar {
     archiveFileName = 'dirty-rabbitmq.jar'
+
+    relocate 'com.rabbitmq', 'com.qualityplus.dirtymessaging.base.lib.rabbitmq'
+    relocate 'org.msgpack', 'com.qualityplus.dirtymessaging.base.lib.org.msgpack'
+    relocate 'org.slf4j', 'com.qualityplus.dirtymessaging.base.lib.org.slf4j'
+
+    doLast {
+        rootProject.copyJars(archiveFile)
+    }
+}
+
+artifacts {
+    archives shadowJar
 }
 
 test {
