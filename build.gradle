@@ -1,9 +1,11 @@
 plugins {
+    id 'java'
+    id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 group 'com.qualityplus'
-version '1.0.0'
+version '0.0.3'
 
 subprojects{
     apply plugin: 'java'
@@ -17,5 +19,17 @@ subprojects{
     dependencies {
         compileOnly 'org.projectlombok:lombok:1.18.22'
         annotationProcessor("org.projectlombok:lombok:1.18.22")
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.qualityplus'
+            artifactId = 'library'
+            version = '0.0.3'
+
+            from components.java
+        }
     }
 }
