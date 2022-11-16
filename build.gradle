@@ -3,15 +3,19 @@ plugins {
 }
 
 group 'com.qualityplus'
-version '0.0.3'
+version '0.0.6'
 
 def copyJars =  {
     file -> {
-        def dir = 'C:/Users/andre/OneDrive/Desktop/DirtyFolder'
-        mkdir dir
-        copy {
-            into dir
-            from file
+        try{
+            def dir = 'C:/Users/andre/OneDrive/Desktop/DirtyFolder'
+            mkdir dir
+            copy {
+                into dir
+                from file
+            }
+        }catch(Exception ignored){
+            println 'An Exception ocurred trying to move file!'
         }
     }
 }
@@ -37,8 +41,8 @@ subprojects{
         publications {
             maven(MavenPublication) {
                 groupId = 'com.qualityplus'
-                artifactId = 'library'
-                version = '0.0.3'
+                artifactId = 'dirty-messaging'
+                version = '0.0.6'
 
                 from components.java
             }
