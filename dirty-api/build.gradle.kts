@@ -23,15 +23,6 @@ tasks.withType<ShadowJar> {
 
     doLast {
         @Suppress("UNCHECKED_CAST")
-        (rootProject.ext.get("copyJars") as? ((Provider<RegularFile>) -> java.io.File) ?: return@doLast)(archiveFile)
-    }
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-            artifact(tasks["shadowJar"])
-        }
+        (rootProject.ext.get("copyJars") as? ((Provider<RegularFile>) -> File) ?: return@doLast)(archiveFile)
     }
 }
