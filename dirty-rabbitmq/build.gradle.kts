@@ -36,3 +36,9 @@ tasks.withType<ShadowJar> {
         (rootProject.ext.get("copyJars") as? ((Provider<RegularFile>) -> File) ?: return@doLast)(archiveFile)
     }
 }
+
+tasks {
+    artifacts {
+        archives(shadowJar)
+    }
+}

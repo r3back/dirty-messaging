@@ -18,7 +18,6 @@ val copyJars = { file: Provider<RegularFile> -> run {
     }
 }
 
-
 project.extra["copyJars"] = copyJars
 
 subprojects{
