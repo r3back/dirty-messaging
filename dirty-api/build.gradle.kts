@@ -6,6 +6,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
+name "dirty-api"
 group "com.qualityplus"
 version "1.0.0"
 
@@ -37,7 +38,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = rootProject.group as String?
-            artifactId = "$rootProject.name-$project.name"
+            artifactId = "dirty-api"/*"$rootProject.name-$name"*/
             version = rootProject.version as String
             from(components["java"])
             artifact(tasks["shadowJar"])

@@ -40,7 +40,7 @@ publishing {
     publications {
         create<MavenPublication>("maven") {
             groupId = rootProject.group as String?
-            artifactId = "$rootProject.name-$project.name"
+            artifactId = "dirty-redis"/*"$rootProject.name-$name"*/
             version = rootProject.version as String
             from(components["java"])
             artifact(tasks["shadowJar"])
