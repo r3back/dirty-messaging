@@ -34,13 +34,6 @@ subprojects{
         annotationProcessor("org.projectlombok:lombok:1.18.22")
     }
 
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                artifact(tasks["shadowJar"])
-            }
-        }
-    }
+
 }
 

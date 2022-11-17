@@ -31,3 +31,15 @@ tasks {
         archives(shadowJar)
     }
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = rootProject.group as String?
+            artifactId = "$rootProject.name-$project.name"
+            version = rootProject.version as String
+            from(components["java"])
+            artifact(tasks["shadowJar"])
+        }
+    }
+}
