@@ -26,3 +26,12 @@ tasks.withType<ShadowJar> {
         (rootProject.ext.get("copyJars") as? ((Provider<RegularFile>) -> java.io.File) ?: return@doLast)(archiveFile)
     }
 }
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            artifact(tasks["shadowJar"])
+        }
+    }
+}
