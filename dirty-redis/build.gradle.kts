@@ -23,6 +23,7 @@ dependencies {
 
 tasks.withType<ShadowJar> {
     archiveFileName.set("dirty-redis.jar")
+    archiveClassifier.set("dirty-redis-classifier")
 
     doLast {
         @Suppress("UNCHECKED_CAST")

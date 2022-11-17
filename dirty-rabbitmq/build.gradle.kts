@@ -25,6 +25,7 @@ dependencies {
 
 tasks.withType<ShadowJar> {
     archiveFileName.set("dirty-rabbitmq.jar")
+    archiveClassifier.set("dirty-rabbitmq-classifier")
 
     relocate ("com.rabbitmq", "com.qualityplus.dirtymessaging.base.lib.rabbitmq")
     relocate ("org.msgpack", "com.qualityplus.dirtymessaging.base.lib.org.msgpack")

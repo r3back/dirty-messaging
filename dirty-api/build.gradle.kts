@@ -21,6 +21,7 @@ dependencies {
 
 tasks.withType<ShadowJar> {
     archiveFileName.set("dirty-api.jar")
+    archiveClassifier.set("dirty-api-classifier")
 
     doLast {
         @Suppress("UNCHECKED_CAST")
