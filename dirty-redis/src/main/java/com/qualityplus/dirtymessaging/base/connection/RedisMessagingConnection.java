@@ -1,51 +1,51 @@
 package com.qualityplus.dirtymessaging.base.connection;
 
 import com.qualityplus.dirtymessaging.api.connection.DirtyConnection;
-import com.qualityplus.dirtymessaging.api.credentials.DirtyCredentials;
-import com.qualityplus.dirtymessaging.api.handler.MessageHandler;
-import com.qualityplus.dirtymessaging.api.handler.MessageHandlerRegistry;
+import com.qualityplus.dirtymessaging.api.credentials.Credentials;
+import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
+import com.qualityplus.dirtymessaging.api.sub.MessageHandlerRegistry;
 import com.qualityplus.dirtymessaging.api.publisher.DirtyPublisher;
 import com.qualityplus.dirtymessaging.api.serialization.MessagePackSerializable;
-import com.qualityplus.dirtymessaging.base.listener.RedisMessagePubSubListener;
-import com.qualityplus.dirtymessaging.base.publisher.RedisMessagePublisher;
+import com.qualityplus.dirtymessaging.base.listener.DirtyRedisSubListener;
+import com.qualityplus.dirtymessaging.base.publisher.DirtyRedisPublisher;
 import io.lettuce.core.RedisClient;
 
 public final class RedisMessagingConnection implements DirtyConnection {
     private final MessageHandlerRegistry messageHandlerRegistry = MessageHandlerRegistry.INSTANCE;
     private final DirtyPublisher publisher;
 
-    public static DirtyConnection of(DirtyCredentials credentials){
+    public static DirtyConnection of(final Credentials credentials){
         return new RedisMessagingConnection(credentials);
     }
 
-    private RedisMessagingConnection(DirtyCredentials credentials) {
+    private RedisMessagingConnection(final Credentials credentials) {
         this.publisher = createPublisher(credentials);
     }
 
     @Override
-    public void publish(MessagePackSerializable message) {
+    public void publish(final MessagePackSerializable message) {
         publisher.publish(message);
     }
 
     @Override
-    public <T extends MessagePackSerializable> void addHandler(Class<T> clazz, MessageHandler<T> consumer) {
+    public <T extends MessagePackSerializable> void addHandler(Class<T> clazz, DirtySubscriber<T> consumer) {
         messageHandlerRegistry.addHandler(clazz, consumer);
     }
 
-    private DirtyPublisher createPublisher(DirtyCredentials credentials){
-        String uri = credentials.getUri();
+    private DirtyPublisher createPublisher(final Credentials credentials) {
+        final String uri = credentials.getUri();
 
-        String prefix = credentials.getPrefix();
+        final String prefix = credentials.getPrefix();
 
-        RedisClient client = RedisClient.create(uri);
+        final RedisClient client = RedisClient.create(uri);
 
         registerRedisPubSubListener(client, prefix);
 
-        return new RedisMessagePublisher(client, prefix);
+        return new DirtyRedisPublisher(client, prefix);
     }
 
-    private static void registerRedisPubSubListener(RedisClient client, String prefix) {
-        RedisMessagePubSubListener listener = new RedisMessagePubSubListener(prefix);
+    private static void registerRedisPubSubListener(final RedisClient client, final String prefix) {
+        final DirtyRedisSubListener listener = new DirtyRedisSubListener(prefix);
 
         listener.register(client);
     }

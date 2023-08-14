@@ -35,15 +35,21 @@ public final class DirtyMessage implements AnnotationMessageSerializer {
 Example of a custom handler used to handle DirtyMessage.class:
 
 ```java
-import com.qualityplus.dirtymessaging.api.handler.MessageHandler;
-import com.qualityplus.dirtymessaging.example.message.DirtyMessage;
+import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
+import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
 
-public final class DirtyMessageHandler implements MessageHandler<DirtyMessage> {
+/**
+ * Example subscriber that print the string field from received message
+ */
+public final class PrintSubscriber implements DirtySubscriber<DirtyMessage> {
+    /**
+     * Handles a message when is received
+     *
+     * @param message {@link DirtyMessage} received message
+     */
     @Override
-    public void accept(DirtyMessage message) {
-        /**
-         * Do Whatever with received message
-         */
+    public void accept(final DirtyMessage message) {
+        System.out.println(message.getSomeString());
     }
 
     @Override
@@ -53,56 +59,72 @@ public final class DirtyMessageHandler implements MessageHandler<DirtyMessage> {
 }
 ```
 
-# Messaging Service
-Redis or RabbitMQ Don't fit on you? no problem, create your own service:
+# Messaging Client
+Redis or RabbitMQ Don't fit on you? no problem, create your own client:
 
 ```java
-import com.qualityplus.dirtymessaging.api.handler.MessageHandler;
+import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
 import com.qualityplus.dirtymessaging.api.serialization.MessagePackSerializable;
 
-public interface DirtyService { 
-    
-    void publish(MessagePackSerializable message);
+/**
+ * Client interface
+ */
+public interface DirtyClient {
+    /**
+     * Method to Publish messages to all
+     * client subscribers.
+     *
+     * @param message {@link MessagePackSerializable}
+     */
+    public void publish(final MessagePackSerializable message);
 
-    <T extends MessagePackSerializable> void addHandler(Class<T> clazz, MessageHandler<T> consumer);
-    
+    /**
+     * Add subscriber to handle specific message
+     * classes.
+     *
+     * @param clazz      Message Class
+     * @param subscriber {@link DirtySubscriber} handler for message class
+     * @param <T>        Generic type that extends from {@link MessagePackSerializable}
+     */
+    public <T extends MessagePackSerializable> void addSubscriber(final Class<T> clazz,
+                                                                  final DirtySubscriber<T> subscriber);
 }
 ```
 
 # Fully Working Example with redis
-Easy Messaging Service usage with redis:
+Easy Messaging Client usage with redis:
 
 ```java
-import com.qualityplus.dirtymessaging.DirtyService;
-import com.qualityplus.dirtymessaging.api.credentials.DirtyCredentials.MessagingType;
-import com.qualityplus.dirtymessaging.base.service.factory.RedisMessagingServiceFactory;
-import com.qualityplus.dirtymessaging.core.credentials.MessagingCredentials;
-import com.qualityplus.dirtymessaging.example.handler.DirtyMessageHandler;
-import com.qualityplus.dirtymessaging.example.message.DirtyMessage;
+import com.qualityplus.dirtymessaging.DirtyClient;
+import com.qualityplus.dirtymessaging.api.credentials.Credentials;
+import com.qualityplus.dirtymessaging.core.builder.DirtyClientBuilder;
+import com.qualityplus.dirtymessaging.core.credentials.DirtyCredentials;
+import com.qualityplus.dirtymessaging.core.sub.PrintSubscriber;
+import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
 
-public final class DirtyExample {
+public final class DirtyCore {
     private static final String REDIS_URI = "redis://user:password@host:port";
     private static final String PREFIX = "REDIS_PREFIX";
 
-    public void dirtyExampleMethod(){
-        MessagingCredentials credentials = MessagingCredentials.builder()
+    private void clientCreationExample(){
+        final DirtyCredentials credentials = DirtyCredentials.builder()
                 .uri(REDIS_URI)
                 .prefix(PREFIX)
-                .type(MessagingType.REDIS)
+                .type(Credentials.MessagingType.REDIS)
                 .build();
 
-        DirtyService service = RedisMessagingServiceFactory
+        final DirtyClient client = new DirtyClientBuilder()
                 .withCredentials(credentials)
-                .withHandler(DirtyMessage.class, new DirtyMessageHandler())
+                .withSubscriber(DirtyMessage.class, new PrintSubscriber())
                 .create();
 
-        DirtyMessage message = DirtyMessage.builder()
+        final DirtyMessage message = DirtyMessage.builder()
                 .someInt(1)
                 .someString("someString")
                 .someBytes(new byte[]{1, 2, 3})
                 .build();
 
-        service.publish(message);
+        client.publish(message);
     }
 }
 ```

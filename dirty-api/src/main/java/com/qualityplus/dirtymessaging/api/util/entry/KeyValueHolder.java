@@ -4,44 +4,45 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class KeyValueHolder<K, V> implements Map.Entry<K, V> {
-    final K key;
-    final V value;
+    private final K key;
+    private final V value;
 
-    KeyValueHolder(K k, V v) {
-        key = Objects.requireNonNull(k);
-        value = Objects.requireNonNull(v);
+    public KeyValueHolder(final K k, final V v) {
+        this.key = Objects.requireNonNull(k);
+        this.value = Objects.requireNonNull(v);
     }
 
     @Override
     public K getKey() {
-        return key;
+        return this.key;
     }
 
     @Override
     public V getValue() {
-        return value;
+        return this.value;
     }
 
     @Override
-    public V setValue(V value) {
+    public V setValue(final V value) {
         throw new UnsupportedOperationException("not supported");
     }
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof Map.Entry))
+        if (!(o instanceof Map.Entry)) {
             return false;
-        Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
-        return key.equals(e.getKey()) && value.equals(e.getValue());
+        }
+        final Map.Entry<?, ?> e = (Map.Entry<?, ?>) o;
+        return this.key.equals(e.getKey()) && this.value.equals(e.getValue());
     }
 
     @Override
     public int hashCode() {
-        return key.hashCode() ^ value.hashCode();
+        return this.key.hashCode() ^ this.value.hashCode();
     }
 
     @Override
     public String toString() {
-        return key + "=" + value;
+        return this.key + "=" + this.value;
     }
 }

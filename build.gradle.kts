@@ -4,15 +4,16 @@ plugins {
     id ("com.github.johnrengelman.shadow") version "7.1.2"
 }
 
-group "com.qualityplus"
-version "0.0.6"
+group = "com.github.r3back"
+version = "0.0.1"
 
-val copyJars = { file: Provider<RegularFile> -> run {
+val copyJars = {
+        file: Provider<RegularFile> -> run {
         val name = file.get().asFile.name
 
-        println ("Moving $name to new directory!")
+        val folder = rootProject.rootDir.absolutePath
 
-        val path = "C:/Users/andre/OneDrive/Desktop/DirtyFolder/$name"
+        val path = "$folder/generated/$name"
 
         file.get().asFile.copyTo(File(path), true)
     }

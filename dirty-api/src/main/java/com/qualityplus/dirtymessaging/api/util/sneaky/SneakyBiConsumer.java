@@ -3,7 +3,7 @@ package com.qualityplus.dirtymessaging.api.util.sneaky;
 import java.util.function.BiConsumer;
 
 public interface SneakyBiConsumer<T, U, E extends Exception> {
-    static <T, U> BiConsumer<T, U> of(SneakyBiConsumer<? super T, ? super U, ? extends Exception> cons) {
+    public static <T, U> BiConsumer<T, U> of(final SneakyBiConsumer<? super T, ? super U, ? extends Exception> cons) {
         return (e, f) -> {
             try {
                 cons.accept(e, f);
@@ -13,5 +13,5 @@ public interface SneakyBiConsumer<T, U, E extends Exception> {
         };
     }
 
-    void accept(T t, U u) throws E;
+    public void accept(final T t, final U u) throws E;
 }

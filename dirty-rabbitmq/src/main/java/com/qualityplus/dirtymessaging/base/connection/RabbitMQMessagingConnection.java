@@ -1,13 +1,13 @@
 package com.qualityplus.dirtymessaging.base.connection;
 
 import com.qualityplus.dirtymessaging.api.connection.DirtyConnection;
-import com.qualityplus.dirtymessaging.api.credentials.DirtyCredentials;
-import com.qualityplus.dirtymessaging.api.handler.MessageHandler;
-import com.qualityplus.dirtymessaging.api.handler.MessageHandlerRegistry;
+import com.qualityplus.dirtymessaging.api.credentials.Credentials;
+import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
+import com.qualityplus.dirtymessaging.api.sub.MessageHandlerRegistry;
 import com.qualityplus.dirtymessaging.api.publisher.DirtyPublisher;
 import com.qualityplus.dirtymessaging.api.serialization.MessagePackSerializable;
-import com.qualityplus.dirtymessaging.base.listener.RabbitMQMessagePubSubListener;
-import com.qualityplus.dirtymessaging.base.publisher.RabbitMQPublisher;
+import com.qualityplus.dirtymessaging.base.listener.DirtyRabbitMQListener;
+import com.qualityplus.dirtymessaging.base.publisher.DirtyRabbitMQPublisher;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,44 +16,44 @@ public final class RabbitMQMessagingConnection implements DirtyConnection {
     private final MessageHandlerRegistry messageHandlerRegistry = MessageHandlerRegistry.INSTANCE;
     private final DirtyPublisher publisher;
 
-    public static DirtyConnection of(DirtyCredentials credentials){
+    public static DirtyConnection of(final Credentials credentials){
         return new RabbitMQMessagingConnection(credentials);
     }
 
-    private RabbitMQMessagingConnection(DirtyCredentials credentials) {
+    private RabbitMQMessagingConnection(final Credentials credentials) {
         this.publisher = createPublisher(credentials);
     }
 
     @Override
-    public void publish(MessagePackSerializable message) {
-        publisher.publish(message);
+    public void publish(final MessagePackSerializable message) {
+        this.publisher.publish(message);
     }
 
     @Override
-    public <T extends MessagePackSerializable> void addHandler(Class<T> clazz, MessageHandler<T> consumer) {
-        messageHandlerRegistry.addHandler(clazz, consumer);
+    public <T extends MessagePackSerializable> void addHandler(final Class<T> clazz, final DirtySubscriber<T> consumer) {
+        this.messageHandlerRegistry.addHandler(clazz, consumer);
     }
 
-    private DirtyPublisher createPublisher(DirtyCredentials credentials){
-        String uri = credentials.getUri();
+    private DirtyPublisher createPublisher(final Credentials credentials){
+        final String uri = credentials.getUri();
 
-        String prefix = credentials.getPrefix();
+        final String prefix = credentials.getPrefix();
 
-        ConnectionFactory connectionFactory = new ConnectionFactory();
+        final ConnectionFactory connectionFactory = new ConnectionFactory();
 
         try {
             connectionFactory.setUri(uri);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         registerRabbitMQPubSubListener(connectionFactory, prefix);
 
-        return new RabbitMQPublisher(connectionFactory, prefix);
+        return new DirtyRabbitMQPublisher(connectionFactory, prefix);
     }
 
 
-    private static void registerRabbitMQPubSubListener(ConnectionFactory factory, String prefix) {
+    private static void registerRabbitMQPubSubListener(final ConnectionFactory factory, final String prefix) {
         try {
             Connection connection = factory.newConnection();
 
@@ -65,7 +65,7 @@ public final class RabbitMQMessagingConnection implements DirtyConnection {
 
             channel.queueBind(queueName, prefix, "");
 
-            channel.basicConsume(queueName, true, new RabbitMQMessagePubSubListener(prefix), consumerTag -> { });
+            channel.basicConsume(queueName, true, new DirtyRabbitMQListener(prefix), consumerTag -> { });
         }catch (Exception e){
             e.printStackTrace();
         }
