@@ -1,65 +1,53 @@
-# Overview
-This library helps in communication across multiple JVMs.
-It works by serializing messages using MessagePack and sending them to specific channels.
-Deserialization happens automatically when a message is received on channel. After deserialization, all handlers for message's class are triggered. If there's no such class in classloader, message is getting skipped.
-In order to get this library working properly, you need to have exactly the same path to class in both classloaders of JVMs you want to communicate between.
-<br><br>
-This library utilizes:
-* LettuceCore to manage Redis Messages.
-* AMQP for RabbitMQ Messages.
+# Dirty Messaging
+Easy to use messaging queue library, it's build under the Pub/Sub Design Pattern.
 
-# Messages
-Example message of custom class to deserialize using @DirtyField annotation:
+[![Java CI with Gradle](https://github.com/r3back/dirty-messaging/actions/workflows/gradle.yml/badge.svg)](https://github.com/r3back/dirty-messaging/actions/workflows/gradle.yml)
+[![](https://jitpack.io/v/r3back/dirty-messaging.svg)](https://jitpack.io/#r3back/dirty-messaging)
 
-```java
-import com.qualityplus.dirtymessaging.api.serialization.annotation.AnnotationMessageSerializer;
-import com.qualityplus.dirtymessaging.api.serialization.annotation.DirtyField;
+## Dependency Usage
 
-public final class DirtyMessage implements AnnotationMessageSerializer {
-    @DirtyField
-    private final Integer someInt;
-    @DirtyField
-    private final String someString;
-    @DirtyField
-    private final byte[] someBytes;
+### Maven
 
-    public DirtyMessage(int someInt, String someString, byte[] someBytes) {
-        this.someInt = someInt;
-        this.someString = someString;
-        this.someBytes = someBytes;
+```xml
+<repository>
+    <id>jitpack.io</id>
+    <url>https://jitpack.io</url>
+</repository>
+```
+
+```xml
+<dependency>
+    <groupId>com.github.r3back</groupId>
+    <artifactId>dirty-messaging</artifactId>
+    <version>LATEST</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+repositories {
+    maven { 
+        url 'https://jitpack.io' 
     }
 }
 ```
 
-# Message Handler
-Example of a custom handler used to handle DirtyMessage.class:
-
-```java
-import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
-import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
-
-/**
- * Example subscriber that print the string field from received message
- */
-public final class PrintSubscriber implements DirtySubscriber<DirtyMessage> {
-    /**
-     * Handles a message when is received
-     *
-     * @param message {@link DirtyMessage} received message
-     */
-    @Override
-    public void accept(final DirtyMessage message) {
-        System.out.println(message.getSomeString());
-    }
-
-    @Override
-    public boolean isOneTime() {
-        return false;
-    }
+```groovy
+dependencies {
+    compileOnly 'com.github.r3back:dirty-messaging:LATEST'
 }
 ```
 
-# Messaging Client
+## Building
+Dirty-Messaging uses Gradle to handle dependencies & building.
+
+## Used Tools
+* [MessagePack](https://github.com/msgpack/msgpack-java) used to binary serialize messages.
+* [LettuceCore](https://github.com/lettuce-io/lettuce-core) to handle Redis Messages.
+* [AMQP](https://github.com/rabbitmq/rabbitmq-java-client) to handle RabbitMQ Messages.
+
+## Messaging Client
 Redis or RabbitMQ Don't fit on you? no problem, create your own client:
 
 ```java
@@ -91,7 +79,58 @@ public interface DirtyClient {
 }
 ```
 
-# Fully Working Example with redis
+## Messaging Subscriber
+Example of a custom subscriber used to handle DirtyMessage.class:
+
+```java
+import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
+import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
+
+/**
+ * Example subscriber that print the string field from received message
+ */
+public final class PrintSubscriber implements DirtySubscriber<DirtyMessage> {
+    /**
+     * Handles a message when is received
+     *
+     * @param message {@link DirtyMessage} received message
+     */
+    @Override
+    public void accept(final DirtyMessage message) {
+        System.out.println(message.getSomeString());
+    }
+
+    @Override
+    public boolean isOneTime() {
+        return false;
+    }
+}
+```
+
+## Custom Message
+Example message of custom message class using @DirtyField annotation:
+
+```java
+import com.qualityplus.dirtymessaging.api.serialization.annotation.AnnotationMessageSerializer;
+import com.qualityplus.dirtymessaging.api.serialization.annotation.DirtyField;
+
+public final class DirtyMessage implements AnnotationMessageSerializer {
+    @DirtyField
+    private final Integer someInt;
+    @DirtyField
+    private final String someString;
+    @DirtyField
+    private final byte[] someBytes;
+
+    public DirtyMessage(int someInt, String someString, byte[] someBytes) {
+        this.someInt = someInt;
+        this.someString = someString;
+        this.someBytes = someBytes;
+    }
+}
+```
+
+## Fully Working Example with redis
 Easy Messaging Client usage with redis:
 
 ```java
