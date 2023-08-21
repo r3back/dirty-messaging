@@ -1,7 +1,6 @@
-rootProject.name = "dirty-messaging"
-include ("dirty-core")
-include ("dirty-api")
-include ("dirty-redis")
-include ("dirty-rabbitmq")
-//include ("dirty-plugin")
+rootProject.name = "fast-mq"
+include ("fast-mq-core")
+include ("fast-mq-api")
+include ("fast-mq-redis")
+include ("fast-mq-rabbitmq")
 

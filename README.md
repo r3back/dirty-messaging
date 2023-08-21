@@ -1,8 +1,8 @@
-# Dirty Messaging
+# Fast Messaging
 Easy to use messaging queue library, it's build under the Pub/Sub Design Pattern.
 
-[![Java CI with Gradle](https://github.com/r3back/dirty-messaging/actions/workflows/gradle.yml/badge.svg)](https://github.com/r3back/dirty-messaging/actions/workflows/gradle.yml)
-[![](https://jitpack.io/v/r3back/dirty-messaging.svg)](https://jitpack.io/#r3back/dirty-messaging)
+[![Java CI with Gradle](https://github.com/r3back/fast-mq/actions/workflows/gradle.yml/badge.svg)](https://github.com/r3back/fast-mq/actions/workflows/gradle.yml)
+[![](https://jitpack.io/v/r3back/fast-mq.svg)](https://jitpack.io/#r3back/fast-mq)
 
 ## Dependency Usage
 
@@ -18,7 +18,7 @@ Easy to use messaging queue library, it's build under the Pub/Sub Design Pattern
 ```xml
 <dependency>
     <groupId>com.github.r3back</groupId>
-    <artifactId>dirty-messaging</artifactId>
+    <artifactId>fast-messaging</artifactId>
     <version>LATEST</version>
 </dependency>
 ```
@@ -35,29 +35,26 @@ repositories {
 
 ```groovy
 dependencies {
-    compileOnly 'com.github.r3back:dirty-messaging:LATEST'
+    compileOnly 'com.github.r3back:fast-messaging:LATEST'
 }
 ```
 
 ## Building
-Dirty-Messaging uses Gradle to handle dependencies & building.
+Fast-Messaging uses Gradle to handle dependencies & building.
 
 ## Used Tools
 * [MessagePack](https://github.com/msgpack/msgpack-java) used to binary serialize messages.
 * [LettuceCore](https://github.com/lettuce-io/lettuce-core) to handle Redis Messages.
 * [AMQP](https://github.com/rabbitmq/rabbitmq-java-client) to handle RabbitMQ Messages.
 
-## Messaging Client
+## MQ Client
 Redis or RabbitMQ Don't fit on you? no problem, create your own client:
 
 ```java
-import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
-import com.qualityplus.dirtymessaging.api.serialization.MessagePackSerializable;
-
 /**
- * Client interface
+ * MQ Client interface
  */
-public interface DirtyClient {
+public interface FastMQClient {
     /**
      * Method to Publish messages to all
      * client subscribers.
@@ -71,35 +68,39 @@ public interface DirtyClient {
      * classes.
      *
      * @param clazz      Message Class
-     * @param subscriber {@link DirtySubscriber} handler for message class
+     * @param subscriber {@link FastMQSubscriber} handler for message class
      * @param <T>        Generic type that extends from {@link MessagePackSerializable}
      */
     public <T extends MessagePackSerializable> void addSubscriber(final Class<T> clazz,
-                                                                  final DirtySubscriber<T> subscriber);
+                                                                  final FastMQSubscriber<T> subscriber);
 }
+
 ```
 
-## Messaging Subscriber
-Example of a custom subscriber used to handle DirtyMessage.class:
+## MQ Subscriber
+Example of a custom subscriber used to handle FastMQMessage.class:
 
 ```java
-import com.qualityplus.dirtymessaging.api.sub.DirtySubscriber;
-import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
-
 /**
  * Example subscriber that print the string field from received message
  */
-public final class PrintSubscriber implements DirtySubscriber<DirtyMessage> {
+public final class PrintSubscriber implements FastMQSubscriber<FastMQMessage> {
     /**
      * Handles a message when is received
      *
-     * @param message {@link DirtyMessage} received message
+     * @param message {@link FastMQMessage} received message
      */
     @Override
-    public void accept(final DirtyMessage message) {
+    public void accept(final FastMQMessage message) {
         System.out.println(message.getSomeString());
     }
 
+    /**
+     * Retrieves If the subscriber work only 
+     * one time
+     *
+     * @return true if it's one time message
+     */
     @Override
     public boolean isOneTime() {
         return false;
@@ -108,21 +109,23 @@ public final class PrintSubscriber implements DirtySubscriber<DirtyMessage> {
 ```
 
 ## Custom Message
-Example message of custom message class using @DirtyField annotation:
+Example message of custom message class using @FastMQField annotation:
 
 ```java
-import com.qualityplus.dirtymessaging.api.serialization.annotation.AnnotationMessageSerializer;
-import com.qualityplus.dirtymessaging.api.serialization.annotation.DirtyField;
-
-public final class DirtyMessage implements AnnotationMessageSerializer {
-    @DirtyField
+/**
+ * Example MQ Message
+ */
+@Getter
+@Builder
+public final class FastMQMessage implements AnnotationMessageSerializer {
+    @FastMQField
     private final Integer someInt;
-    @DirtyField
+    @FastMQField
     private final String someString;
-    @DirtyField
+    @FastMQField
     private final byte[] someBytes;
 
-    public DirtyMessage(int someInt, String someString, byte[] someBytes) {
+    public FastMQMessage(final int someInt, final String someString, final byte[] someBytes) {
         this.someInt = someInt;
         this.someString = someString;
         this.someBytes = someBytes;
@@ -131,33 +134,26 @@ public final class DirtyMessage implements AnnotationMessageSerializer {
 ```
 
 ## Fully Working Example with redis
-Easy Messaging Client usage with redis:
+Easy MQ Client usage with redis:
 
 ```java
-import com.qualityplus.dirtymessaging.DirtyClient;
-import com.qualityplus.dirtymessaging.api.credentials.Credentials;
-import com.qualityplus.dirtymessaging.core.builder.DirtyClientBuilder;
-import com.qualityplus.dirtymessaging.core.credentials.DirtyCredentials;
-import com.qualityplus.dirtymessaging.core.sub.PrintSubscriber;
-import com.qualityplus.dirtymessaging.core.message.DirtyMessage;
-
-public final class DirtyCore {
+public final class FastMQCore {
     private static final String REDIS_URI = "redis://user:password@host:port";
     private static final String PREFIX = "REDIS_PREFIX";
 
     private void clientCreationExample(){
-        final DirtyCredentials credentials = DirtyCredentials.builder()
+        final FastMQCredentials credentials = FastMQCredentials.builder()
                 .uri(REDIS_URI)
                 .prefix(PREFIX)
                 .type(Credentials.MessagingType.REDIS)
                 .build();
 
-        final DirtyClient client = new DirtyClientBuilder()
+        final FastMQClient client = new FastMQClientBuilder()
                 .withCredentials(credentials)
-                .withSubscriber(DirtyMessage.class, new PrintSubscriber())
+                .withSubscriber(FastMQMessage.class, new PrintSubscriber())
                 .create();
 
-        final DirtyMessage message = DirtyMessage.builder()
+        final FastMQMessage message = FastMQMessage.builder()
                 .someInt(1)
                 .someString("someString")
                 .someBytes(new byte[]{1, 2, 3})
