@@ -18,7 +18,7 @@ Easy to use messaging queue library, it's build under the Pub/Sub Design Pattern
 ```xml
 <dependency>
     <groupId>com.github.r3back</groupId>
-    <artifactId>fast-messaging</artifactId>
+    <artifactId>fast-mq</artifactId>
     <version>LATEST</version>
 </dependency>
 ```
@@ -35,7 +35,7 @@ repositories {
 
 ```groovy
 dependencies {
-    compileOnly 'com.github.r3back:fast-messaging:LATEST'
+    compileOnly 'com.github.r3back:fast-mq:LATEST'
 }
 ```
 
